@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# El Creador de Menús
 
-## Getting Started
+¡Bienvenido a "El Creador de Menús"! Una aplicación web diseñada para que dueños de negocios de hostelería y restauración puedan crear, personalizar y compartir los menús de su negocio de una forma sencilla, rápida y profesional.
 
-First, run the development server:
+Este proyecto está siendo construido para ser una herramienta "premium", *mobile-first* y 100% personalizable.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Características Actuales (Fase 2)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+En esta fase, la aplicación cuenta con las siguientes funcionalidades:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+-   **Editor Visual en Tiempo Real:** Una interfaz intuitiva con un panel de herramientas y una vista previa que se actualiza al instante.
+-   **Componentes de Menú Básicos:** Añade fácilmente el nombre de tu negocio, títulos de sección (ej. "Entrantes", "Postres") y productos con nombre, descripción y precio.
+-   **Carga y Personalización de Logo:**
+    -   Sube el logo de tu negocio.
+    -   Ajusta su **tamaño** (pequeño, mediano, grande).
+    -   Elige su **posición** (izquierda, centro, derecha).
+-   **Personalización de Estilo:**
+    -   Escoge entre una selección de **Google Fonts** para darle un toque único a tu menú.
+    -   Selecciona el **color de fondo** y el **color del texto** para que coincida con la identidad de tu marca.
+-   **Exportación a PDF:** Descarga una versión en PDF de tu menú directamente desde el navegador, listo para imprimir o compartir.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Cómo Empezar
 
-## Learn More
+La forma más sencilla de ejecutar y probar este proyecto es usando Gitpod, ya que viene preconfigurado.
 
-To learn more about Next.js, take a look at the following resources:
+[![Abrir en Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Gitpod abrirá un entorno de desarrollo completo en tu navegador, instalará todas las dependencias y lanzará la aplicación automáticamente.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Ejecución Local
 
-## Deploy on Vercel
+Si prefieres ejecutarlo en tu máquina local, necesitarás tener Node.js instalado.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1.  Clona el repositorio.
+2.  Navega al directorio del proyecto `menu-creator`.
+3.  Instala las dependencias: `npm install`.
+4.  Inicia el servidor de desarrollo: `npm run dev`.
+5.  Abre `http://localhost:3000` en tu navegador.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tecnologías Utilizadas
+
+-   **Framework:** Next.js (con React)
+-   **Lenguaje:** TypeScript
+-   **Estilos:** Tailwind CSS
+-   **Exportación a PDF:** jsPDF y html2canvas
