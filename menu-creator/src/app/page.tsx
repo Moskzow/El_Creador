@@ -5,6 +5,8 @@ import BusinessName from '@/components/menu/BusinessName';
 import SectionTitle from '@/components/menu/SectionTitle';
 import ProductItem from '@/components/menu/ProductItem';
 import Logo from '@/components/menu/Logo';
+import Modal from '@/components/common/Modal';
+import LogoEditForm from '@/components/edit-forms/LogoEditForm';
 
 // --- Type Definitions ---
 interface BusinessNameContent { name: string; }
@@ -19,13 +21,17 @@ interface MenuElement {
 
 interface LogoState {
   src: string;
-  size: 'small' | 'medium' | 'large';
-  position: 'left' | 'center' | 'right';
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+  altText: string;
 }
 
 // --- TypeScript Declarations for CDN Libraries ---
 declare const html2canvas: any;
 declare const jspdf: any;
+declare const Rnd: any; // Declaration for react-rnd
 
 // --- Font Options ---
 const fontOptions = [
@@ -43,6 +49,7 @@ export default function EditorPage() {
   const [font, setFont] = useState('font-sans');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
   const [textColor, setTextColor] = useState('#171717');
+  const [editingElement, setEditingElement] = useState<any>(null); // Holds the element being edited
   const menuPreviewRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,20 +84,40 @@ export default function EditorPage() {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
+        // Set initial size and position for the logo
         setLogo({
           src: e.target?.result as string,
-          size: 'medium', // Default size
-          position: 'center', // Default position
+          width: 150,
+          height: 150,
+          x: 50,
+          y: 50,
+          altText: 'Logo del negocio', // Default alt text
         });
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const updateLogo = (prop: keyof LogoState, value: LogoState[keyof LogoState]) => {
+  const updateLogoState = (newState: Partial<LogoState>) => {
     if (logo) {
-      setLogo({ ...logo, [prop]: value });
+      setLogo({ ...logo, ...newState });
     }
+  };
+
+  // --- Modal Handling ---
+  const openModal = (element: any) => {
+    setEditingElement(element);
+  };
+
+  const closeModal = () => {
+    setEditingElement(null);
+  };
+
+  const handleSaveLogo = (newAltText: string) => {
+    if (logo) {
+      updateLogoState({ altText: newAltText });
+    }
+    closeModal();
   };
 
   // --- PDF Export Logic ---
@@ -147,26 +174,7 @@ export default function EditorPage() {
           <button onClick={handleLogoUploadClick} className="w-full bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition-colors">
             {logo ? 'Cambiar Logo' : 'Cargar Logo'}
           </button>
-          {logo && (
-            <div className="space-y-4 pt-2 border-t mt-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Posición del Logo</label>
-                <div className="flex justify-between rounded-lg bg-gray-100 p-1">
-                  <button onClick={() => updateLogo('position', 'left')} className={`w-full p-1 text-sm rounded-md ${logo.position === 'left' ? 'bg-blue-500 text-white shadow' : ''}`}>Izquierda</button>
-                  <button onClick={() => updateLogo('position', 'center')} className={`w-full p-1 text-sm rounded-md ${logo.position === 'center' ? 'bg-blue-500 text-white shadow' : ''}`}>Centro</button>
-                  <button onClick={() => updateLogo('position', 'right')} className={`w-full p-1 text-sm rounded-md ${logo.position === 'right' ? 'bg-blue-500 text-white shadow' : ''}`}>Derecha</button>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tamaño del Logo</label>
-                <div className="flex justify-between rounded-lg bg-gray-100 p-1">
-                  <button onClick={() => updateLogo('size', 'small')} className={`w-full p-1 text-sm rounded-md ${logo.size === 'small' ? 'bg-blue-500 text-white shadow' : ''}`}>Pequeño</button>
-                  <button onClick={() => updateLogo('size', 'medium')} className={`w-full p-1 text-sm rounded-md ${logo.size === 'medium' ? 'bg-blue-500 text-white shadow' : ''}`}>Mediano</button>
-                  <button onClick={() => updateLogo('size', 'large')} className={`w-full p-1 text-sm rounded-md ${logo.size === 'large' ? 'bg-blue-500 text-white shadow' : ''}`}>Grande</button>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Controls for size and position have been removed */}
         </div>
         <hr className="my-6" />
 
@@ -198,7 +206,7 @@ export default function EditorPage() {
           style={{ backgroundColor: backgroundColor, color: textColor }}
         >
           {/* Render the logo if it exists */}
-          {logo && <Logo {...logo} />}
+          {logo && <Logo {...logo} onUpdate={updateLogoState} onDoubleClick={() => openModal({ type: 'logo', ...logo })} />}
 
           {/* Render menu elements */}
           {menuElements.length === 0 && !logo ? (<p className="text-center opacity-50">Añade elementos para crear tu menú.</p>) : (<div className="space-y-4">{menuElements.map(element => <div key={element.id}>{renderElement(element)}</div>)}</div>)}
