@@ -1,0 +1,29 @@
+# This configuration file tells Gitpod how to prepare and start the project.
+
+tasks:
+  - name: Install Dependencies & Start Dev Server
+    # Change directory into the project folder first
+    before: |
+      cd menu-creator
+      npm install
+    # Start the development server
+    command: |
+      cd menu-creator
+      npm run dev
+
+# Expose port 3000 (Next.js default) and open it in a preview browser.
+ports:
+  - port: 3000
+    onOpen: open-preview
+    name: "Menu Creator App"
+    description: "The development server for the menu creator application."
+
+# Use a standard Node.js image for the environment.
+image: gitpod/workspace-node
+
+# Configure VS Code extensions that are useful for this project.
+vscode:
+  extensions:
+    - dbaeumer.vscode-eslint
+    - bradlc.vscode-tailwindcss
+    - esbenp.prettier-vscode
