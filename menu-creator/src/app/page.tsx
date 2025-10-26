@@ -6,17 +6,26 @@ import SectionTitle from '@/components/menu/SectionTitle';
 import ProductItem from '@/components/menu/ProductItem';
 import Logo from '@/components/menu/Logo';
 import Modal from '@/components/common/Modal';
+import Title from '@/components/menu/Title';
+import Subtitle from '@/components/menu/Subtitle';
+import ThankYou from '@/components/menu/ThankYou';
+import Separator from '@/components/menu/Separator';
 import LogoEditForm from '@/components/edit-forms/LogoEditForm';
+import TextEditForm from '@/components/edit-forms/TextEditForm';
 
 // --- Type Definitions ---
 interface BusinessNameContent { name: string; }
 interface SectionTitleContent { title: string; }
 interface ProductContent { name: string; description: string; price: string; }
 
+interface TitleContent { text: string; }
+interface SubtitleContent { text: string; }
+interface ThankYouContent { text: string; }
+
 interface MenuElement {
   id: string;
-  type: 'businessName' | 'sectionTitle' | 'product';
-  content: BusinessNameContent | SectionTitleContent | ProductContent;
+  type: 'businessName' | 'sectionTitle' | 'product' | 'title' | 'subtitle' | 'separator' | 'thankYou';
+  content: BusinessNameContent | SectionTitleContent | ProductContent | TitleContent | SubtitleContent | ThankYouContent | {};
 }
 
 interface LogoState {
@@ -50,6 +59,7 @@ export default function EditorPage() {
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
   const [textColor, setTextColor] = useState('#171717');
   const [editingElement, setEditingElement] = useState<any>(null);
+  const [isAddMenuOpen, setIsAddMenuOpen] = useState(false);
   const menuPreviewRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -60,16 +70,25 @@ export default function EditorPage() {
       case 'businessName': newElement = { id: crypto.randomUUID(), type, content: { name: 'Nombre del Negocio' } }; break;
       case 'sectionTitle': newElement = { id: crypto.randomUUID(), type, content: { title: 'Nueva Sección' } }; break;
       case 'product': newElement = { id: crypto.randomUUID(), type, content: { name: 'Nuevo Producto', description: 'Descripción...', price: '9.99' } }; break;
+      case 'title': newElement = { id: crypto.randomUUID(), type, content: { text: 'Título Principal' } }; break;
+      case 'subtitle': newElement = { id: crypto.randomUUID(), type, content: { text: 'Un subtítulo interesante' } }; break;
+      case 'separator': newElement = { id: crypto.randomUUID(), type, content: {} }; break;
+      case 'thankYou': newElement = { id: crypto.randomUUID(), type, content: { text: '¡Gracias por su visita!' } }; break;
       default: return;
     }
     setMenuElements([...menuElements, newElement]);
   };
 
   const renderElement = (element: MenuElement) => {
+    const handleDoubleClick = () => openModal(element);
     switch (element.type) {
-      case 'businessName': return <BusinessName {...(element.content as BusinessNameContent)} />;
-      case 'sectionTitle': return <SectionTitle {...(element.content as SectionTitleContent)} />;
-      case 'product': return <ProductItem {...(element.content as ProductContent)} />;
+      case 'businessName': return <BusinessName {...(element.content as BusinessNameContent)} onDoubleClick={handleDoubleClick} />;
+      case 'sectionTitle': return <SectionTitle {...(element.content as SectionTitleContent)} onDoubleClick={handleDoubleClick} />;
+      case 'product': return <ProductItem {...(element.content as ProductContent)} />; // Product editing will be more complex
+      case 'title': return <Title {...(element.content as TitleContent)} onDoubleClick={handleDoubleClick} />;
+      case 'subtitle': return <Subtitle {...(element.content as SubtitleContent)} onDoubleClick={handleDoubleClick} />;
+      case 'separator': return <Separator />;
+      case 'thankYou': return <ThankYou {...(element.content as ThankYouContent)} onDoubleClick={handleDoubleClick} />;
       default: return null;
     }
   };
@@ -99,6 +118,25 @@ export default function EditorPage() {
   const closeModal = () => { setEditingElement(null); };
   const handleSaveLogo = (newAltText: string) => {
     if (logo) { updateLogoState({ altText: newAltText }); }
+    closeModal();
+  };
+
+  const handleSaveText = (newValue: string) => {
+    if (!editingElement) return;
+
+    const newElements = menuElements.map(el => {
+      if (el.id === editingElement.id) {
+        // This is a generic way to update text content
+        const newContent = { ...el.content, text: newValue };
+        // For businessName and sectionTitle, the key is different
+        if (el.type === 'businessName') (newContent as any).name = newValue;
+        if (el.type === 'sectionTitle') (newContent as any).title = newValue;
+        return { ...el, content: newContent };
+      }
+      return el;
+    });
+
+    setMenuElements(newElements);
     closeModal();
   };
 
@@ -136,10 +174,31 @@ export default function EditorPage() {
           </button>
         </div>
         <hr className="my-6" />
-        <div className="space-y-3">
-          <button onClick={() => addElement('businessName')} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">Añadir Nombre</button>
-          <button onClick={() => addElement('sectionTitle')} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">Añadir Sección</button>
-          <button onClick={() => addElement('product')} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">Añadir Producto</button>
+
+        {/* --- Add Element Dropdown --- */}
+        <div className="relative">
+          <button
+            onClick={() => setIsAddMenuOpen(!isAddMenuOpen)}
+            className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-colors flex justify-between items-center"
+          >
+            <span>Añadir Elemento</span>
+            <svg className={`w-4 h-4 transition-transform ${isAddMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+          </button>
+          {isAddMenuOpen && (
+            <div className="absolute z-10 mt-2 w-full bg-white rounded-md shadow-lg border">
+              <ul className="py-1">
+                <li><a href="#" onClick={(e) => { e.preventDefault(); addElement('title'); setIsAddMenuOpen(false); }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Título</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); addElement('subtitle'); setIsAddMenuOpen(false); }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Subtítulo</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); addElement('separator'); setIsAddMenuOpen(false); }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Separador</a></li>
+                <li className="border-t my-1"></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); addElement('businessName'); setIsAddMenuOpen(false); }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Nombre del Negocio</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); addElement('sectionTitle'); setIsAddMenuOpen(false); }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sección</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); addElement('product'); setIsAddMenuOpen(false); }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Producto</a></li>
+                <li className="border-t my-1"></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); addElement('thankYou'); setIsAddMenuOpen(false); }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Agradecimiento</a></li>
+              </ul>
+            </div>
+          )}
         </div>
         <hr className="my-6" />
         <h2 className="text-xl font-bold mb-6">Personalización</h2>
@@ -172,6 +231,13 @@ export default function EditorPage() {
           <LogoEditForm
             initialAltText={editingElement.altText}
             onSave={handleSaveLogo}
+            onCancel={closeModal}
+          />
+        )}
+        {['title', 'subtitle', 'thankYou', 'businessName', 'sectionTitle'].includes(editingElement?.type) && (
+          <TextEditForm
+            initialValue={(editingElement.content as any).text || (editingElement.content as any).name || (editingElement.content as any).title}
+            onSave={handleSaveText}
             onCancel={closeModal}
           />
         )}

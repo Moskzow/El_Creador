@@ -9,7 +9,6 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        // Here we link the CSS variables from layout.tsx to Tailwind's font utility classes
         sans: ['var(--font-inter)'],
         roboto: ['var(--font-roboto)'],
         montserrat: ['var(--font-montserrat)'],
