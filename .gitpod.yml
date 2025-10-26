@@ -2,15 +2,17 @@
 
 tasks:
   - name: Setup Environment & Start Server
-    # Set the correct Node.js version and install dependencies.
+    # Set the correct Node.js version, update npm, and install dependencies.
     init: |
       nvm install 20
       nvm use 20
       nvm alias default 20
+      npm install -g npm@latest
       cd menu-creator
       npm install
-    # Run the dev script from the root workspace.
+    # Run the dev script from the sub-project directory.
     command: |
+      cd menu-creator
       npm run dev
 
 # Expose port 3000 (Next.js default) and open it in a preview browser.
