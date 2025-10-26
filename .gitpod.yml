@@ -2,13 +2,12 @@
 
 tasks:
   - name: Install Dependencies & Start Dev Server
-    # Change directory into the project folder first
-    before: |
+    # Install dependencies in the sub-project first.
+    init: |
       cd menu-creator
       npm install
-    # Start the development server
+    # Run the dev script from the root workspace.
     command: |
-      cd menu-creator
       npm run dev
 
 # Expose port 3000 (Next.js default) and open it in a preview browser.
