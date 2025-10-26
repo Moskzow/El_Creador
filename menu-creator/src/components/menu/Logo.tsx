@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-// This component now needs to know about Rnd, which is loaded globally.
+// We still need the global declaration for TypeScript
 declare const Rnd: any;
 
 interface LogoProps {
@@ -15,14 +15,23 @@ interface LogoProps {
 }
 
 const Logo: React.FC<LogoProps> = ({ src, width, height, x, y, altText, onUpdate, onDoubleClick }) => {
-  // Check if Rnd is available on the window object
-  if (typeof Rnd === 'undefined') {
-    // Render a fallback or nothing if the library isn't loaded yet
-    return <p>Cargando componente interactivo...</p>;
+  const [RndComponent, setRndComponent] = useState<React.ComponentType<any> | null>(null);
+
+  useEffect(() => {
+    // Check if the Rnd library is available on the window object.
+    // This will run after the component mounts and the external script has likely loaded.
+    if (typeof Rnd !== 'undefined') {
+      setRndComponent(() => Rnd);
+    }
+  }, []); // The empty dependency array ensures this effect runs only once on mount.
+
+  // If the Rnd component hasn't been loaded yet, show the loading message.
+  if (!RndComponent) {
+    return <p className="text-center text-gray-500">Cargando componente interactivo...</p>;
   }
 
   return (
-    <Rnd
+    <RndComponent
       size={{ width, height }}
       position={{ x, y }}
       onDragStop={(e: any, d: { x: number; y: number }) => {
@@ -35,8 +44,8 @@ const Logo: React.FC<LogoProps> = ({ src, width, height, x, y, altText, onUpdate
           height: parseInt(ref.style.height, 10),
         });
       }}
-      bounds="parent" // Constrains dragging to the parent container
-      lockAspectRatio={true} // Keeps the aspect ratio when resizing
+      bounds="parent"
+      lockAspectRatio={true}
       className="border-2 border-dashed border-transparent hover:border-blue-500 transition-colors"
       onDoubleClick={onDoubleClick}
     >
@@ -44,9 +53,9 @@ const Logo: React.FC<LogoProps> = ({ src, width, height, x, y, altText, onUpdate
         src={src}
         alt={altText}
         className="w-full h-full object-contain"
-        style={{ pointerEvents: 'none' }} // Prevents image from interfering with drag events
+        style={{ pointerEvents: 'none' }}
       />
-    </Rnd>
+    </RndComponent>
   );
 };
 
