@@ -31,7 +31,7 @@ interface LogoState {
 // --- TypeScript Declarations for CDN Libraries ---
 declare const html2canvas: any;
 declare const jspdf: any;
-declare const Rnd: any; // Declaration for react-rnd
+declare const Rnd: any;
 
 // --- Font Options ---
 const fontOptions = [
@@ -49,7 +49,7 @@ export default function EditorPage() {
   const [font, setFont] = useState('font-sans');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
   const [textColor, setTextColor] = useState('#171717');
-  const [editingElement, setEditingElement] = useState<any>(null); // Holds the element being edited
+  const [editingElement, setEditingElement] = useState<any>(null);
   const menuPreviewRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,48 +75,30 @@ export default function EditorPage() {
   };
 
   // --- Logo Handling ---
-  const handleLogoUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
+  const handleLogoUploadClick = () => { fileInputRef.current?.click(); };
   const handleLogoFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        // Set initial size and position for the logo
         setLogo({
           src: e.target?.result as string,
-          width: 150,
-          height: 150,
-          x: 50,
-          y: 50,
-          altText: 'Logo del negocio', // Default alt text
+          width: 150, height: 150, x: 50, y: 50,
+          altText: 'Logo del negocio',
         });
       };
       reader.readAsDataURL(file);
     }
   };
-
   const updateLogoState = (newState: Partial<LogoState>) => {
-    if (logo) {
-      setLogo({ ...logo, ...newState });
-    }
+    if (logo) { setLogo({ ...logo, ...newState }); }
   };
 
   // --- Modal Handling ---
-  const openModal = (element: any) => {
-    setEditingElement(element);
-  };
-
-  const closeModal = () => {
-    setEditingElement(null);
-  };
-
+  const openModal = (element: any) => { setEditingElement(element); };
+  const closeModal = () => { setEditingElement(null); };
   const handleSaveLogo = (newAltText: string) => {
-    if (logo) {
-      updateLogoState({ altText: newAltText });
-    }
+    if (logo) { updateLogoState({ altText: newAltText }); }
     closeModal();
   };
 
@@ -124,40 +106,20 @@ export default function EditorPage() {
   const handleExportPDF = () => {
     const menuElement = menuPreviewRef.current;
     if (!menuElement) return;
-
-    html2canvas(menuElement, {
-      scale: 2, // Improve resolution
-      useCORS: true, // Important for fonts and images
-    }).then((canvas: any) => {
+    html2canvas(menuElement, { scale: 2, useCORS: true }).then((canvas: any) => {
       const imgData = canvas.toDataURL('image/png');
       const { jsPDF } = jspdf;
-
-      // A4 paper size: 210mm x 297mm
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      const canvasWidth = canvas.width;
-      const canvasHeight = canvas.height;
-      const ratio = canvasWidth / canvasHeight;
-
+      const ratio = canvas.width / canvas.height;
       let imgWidth = pdfWidth;
       let imgHeight = imgWidth / ratio;
-
-      // If the image is taller than the page, scale it down
       if (imgHeight > pdfHeight) {
         imgHeight = pdfHeight;
         imgWidth = imgHeight * ratio;
       }
-
-      const x = (pdfWidth - imgWidth) / 2;
-      const y = 0;
-
-      pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', (pdfWidth - imgWidth) / 2, 0, imgWidth, imgHeight);
       pdf.save('menu.pdf');
     });
   };
@@ -167,23 +129,18 @@ export default function EditorPage() {
       {/* --- Sidebar --- */}
       <aside className="w-1/4 bg-white p-6 shadow-md overflow-y-auto">
         <h2 className="text-xl font-bold mb-6">Herramientas</h2>
-
-        {/* Logo Section */}
         <div className="space-y-3">
           <input type="file" ref={fileInputRef} onChange={handleLogoFileChange} className="hidden" accept="image/*" />
-          <button onClick={handleLogoUploadClick} className="w-full bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700 transition-colors">
+          <button onClick={handleLogoUploadClick} className="w-full bg-purple-600 text-white p-2 rounded-lg hover:bg-purple-700">
             {logo ? 'Cambiar Logo' : 'Cargar Logo'}
           </button>
-          {/* Controls for size and position have been removed */}
         </div>
         <hr className="my-6" />
-
         <div className="space-y-3">
           <button onClick={() => addElement('businessName')} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">Añadir Nombre</button>
           <button onClick={() => addElement('sectionTitle')} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">Añadir Sección</button>
           <button onClick={() => addElement('product')} className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">Añadir Producto</button>
         </div>
-
         <hr className="my-6" />
         <h2 className="text-xl font-bold mb-6">Personalización</h2>
         <div className="space-y-4">
@@ -192,7 +149,7 @@ export default function EditorPage() {
           <div><label htmlFor="text-color" className="block text-sm font-medium text-gray-700 mb-1">Color de Texto</label><input id="text-color" type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="w-full h-10 p-1 border border-gray-300 rounded-lg"/></div>
         </div>
         <hr className="my-6" />
-        <button onClick={handleExportPDF} className="w-full bg-green-600 text-white p-3 rounded-lg font-bold hover:bg-green-700 transition-colors">
+        <button onClick={handleExportPDF} className="w-full bg-green-600 text-white p-3 rounded-lg font-bold hover:bg-green-700">
           Exportar a PDF
         </button>
       </aside>
@@ -202,16 +159,23 @@ export default function EditorPage() {
         <h1 className="text-3xl font-bold mb-6 text-center">Vista Previa del Menú</h1>
         <div
           ref={menuPreviewRef}
-          className={`w-full max-w-2xl mx-auto p-12 shadow-lg min-h-[70vh] transition-colors ${font}`}
+          className={`relative w-full max-w-2xl mx-auto p-12 shadow-lg min-h-[70vh] transition-colors ${font}`}
           style={{ backgroundColor: backgroundColor, color: textColor }}
         >
-          {/* Render the logo if it exists */}
           {logo && <Logo {...logo} onUpdate={updateLogoState} onDoubleClick={() => openModal({ type: 'logo', ...logo })} />}
-
-          {/* Render menu elements */}
           {menuElements.length === 0 && !logo ? (<p className="text-center opacity-50">Añade elementos para crear tu menú.</p>) : (<div className="space-y-4">{menuElements.map(element => <div key={element.id}>{renderElement(element)}</div>)}</div>)}
         </div>
       </main>
+
+      <Modal isOpen={!!editingElement} onClose={closeModal} title={`Editando: ${editingElement?.type}`}>
+        {editingElement?.type === 'logo' && (
+          <LogoEditForm
+            initialAltText={editingElement.altText}
+            onSave={handleSaveLogo}
+            onCancel={closeModal}
+          />
+        )}
+      </Modal>
     </div>
   );
 }
