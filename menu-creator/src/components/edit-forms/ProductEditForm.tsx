@@ -1,24 +1,26 @@
 import React, { useState } from 'react';
 
+// We need the font options from the main page. For now, we'll pass them as a prop.
 interface FontOption {
   value: string;
   label: string;
 }
 
-interface TextEditFormProps {
+interface ProductEditFormProps {
   initialValues: {
-    text: string;
+    name: string;
+    description: string;
+    price: string;
     font?: string;
     color?: string;
   };
   fontOptions: FontOption[];
-  onSave: (newValues: TextEditFormProps['initialValues']) => void;
+  onSave: (newValues: ProductEditFormProps['initialValues']) => void;
   onCancel: () => void;
   onDelete: () => void;
-  label?: string;
 }
 
-const TextEditForm: React.FC<TextEditFormProps> = ({ initialValues, fontOptions, onSave, onCancel, onDelete, label = "Texto" }) => {
+const ProductEditForm: React.FC<ProductEditFormProps> = ({ initialValues, fontOptions, onSave, onCancel, onDelete }) => {
   const [values, setValues] = useState(initialValues);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -37,8 +39,16 @@ const TextEditForm: React.FC<TextEditFormProps> = ({ initialValues, fontOptions,
   return (
     <div className="space-y-4">
       <div>
-        <label htmlFor="text" className="block text-sm font-medium text-gray-700">{label}</label>
-        <input type="text" name="text" id="text" value={values.text} onChange={handleChange} className="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
+        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nombre del Producto</label>
+        <input type="text" name="name" id="name" value={values.name} onChange={handleChange} className="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
+      </div>
+      <div>
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700">Descripción</label>
+        <input type="text" name="description" id="description" value={values.description} onChange={handleChange} className="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
+      </div>
+      <div>
+        <label htmlFor="price" className="block text-sm font-medium text-gray-700">Precio</label>
+        <input type="text" name="price" id="price" value={values.price} onChange={handleChange} className="mt-1 block w-full p-2 border border-gray-300 rounded-md" />
       </div>
       <hr />
       <div>
@@ -72,4 +82,4 @@ const TextEditForm: React.FC<TextEditFormProps> = ({ initialValues, fontOptions,
   );
 };
 
-export default TextEditForm;
+export default ProductEditForm;

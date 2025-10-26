@@ -12,15 +12,22 @@ import ThankYou from '@/components/menu/ThankYou';
 import Separator from '@/components/menu/Separator';
 import LogoEditForm from '@/components/edit-forms/LogoEditForm';
 import TextEditForm from '@/components/edit-forms/TextEditForm';
+import ProductEditForm from '@/components/edit-forms/ProductEditForm';
 
 // --- Type Definitions ---
-interface BusinessNameContent { name: string; }
-interface SectionTitleContent { title: string; }
-interface ProductContent { name: string; description: string; price: string; }
+// Base interface for all content types to include optional styling
+interface BaseContent {
+  font?: string;
+  color?: string;
+}
 
-interface TitleContent { text: string; }
-interface SubtitleContent { text: string; }
-interface ThankYouContent { text: string; }
+interface BusinessNameContent extends BaseContent { name: string; }
+interface SectionTitleContent extends BaseContent { title: string; }
+interface ProductContent extends BaseContent { name: string; description: string; price: string; }
+
+interface TitleContent extends BaseContent { text: string; }
+interface SubtitleContent extends BaseContent { text: string; }
+interface ThankYouContent extends BaseContent { text: string; }
 
 interface MenuElement {
   id: string;
@@ -81,14 +88,16 @@ export default function EditorPage() {
 
   const renderElement = (element: MenuElement) => {
     const handleDoubleClick = () => openModal(element);
+    const content = element.content as BaseContent;
+
     switch (element.type) {
-      case 'businessName': return <BusinessName {...(element.content as BusinessNameContent)} onDoubleClick={handleDoubleClick} />;
-      case 'sectionTitle': return <SectionTitle {...(element.content as SectionTitleContent)} onDoubleClick={handleDoubleClick} />;
-      case 'product': return <ProductItem {...(element.content as ProductContent)} />; // Product editing will be more complex
-      case 'title': return <Title {...(element.content as TitleContent)} onDoubleClick={handleDoubleClick} />;
-      case 'subtitle': return <Subtitle {...(element.content as SubtitleContent)} onDoubleClick={handleDoubleClick} />;
+      case 'businessName': return <BusinessName {...(content as BusinessNameContent)} onDoubleClick={handleDoubleClick} />;
+      case 'sectionTitle': return <SectionTitle {...(content as SectionTitleContent)} onDoubleClick={handleDoubleClick} />;
+      case 'product': return <ProductItem {...(content as ProductContent)} onDoubleClick={handleDoubleClick} />;
+      case 'title': return <Title {...(content as TitleContent)} onDoubleClick={handleDoubleClick} />;
+      case 'subtitle': return <Subtitle {...(content as SubtitleContent)} onDoubleClick={handleDoubleClick} />;
       case 'separator': return <Separator />;
-      case 'thankYou': return <ThankYou {...(element.content as ThankYouContent)} onDoubleClick={handleDoubleClick} />;
+      case 'thankYou': return <ThankYou {...(content as ThankYouContent)} onDoubleClick={handleDoubleClick} />;
       default: return null;
     }
   };
@@ -121,17 +130,42 @@ export default function EditorPage() {
     closeModal();
   };
 
-  const handleSaveText = (newValue: string) => {
+  const handleSaveText = (newValues: any) => {
+    if (!editingElement) return;
+    const { text, font, color } = newValues;
+
+    const newElements = menuElements.map(el => {
+      if (el.id === editingElement.id) {
+        const newContent = { ...el.content, font, color };
+        if (el.type === 'businessName') (newContent as any).name = text;
+        else if (el.type === 'sectionTitle') (newContent as any).title = text;
+        else (newContent as any).text = text;
+        return { ...el, content: newContent };
+      }
+      return el;
+    });
+
+    setMenuElements(newElements);
+    closeModal();
+  };
+
+  const handleDeleteElement = () => {
+    if (!editingElement) return;
+
+    if (editingElement.type === 'logo') {
+      setLogo(null);
+    } else {
+      setMenuElements(prev => prev.filter(el => el.id !== editingElement.id));
+    }
+    closeModal();
+  };
+
+  const handleSaveProduct = (newValues: ProductContent) => {
     if (!editingElement) return;
 
     const newElements = menuElements.map(el => {
       if (el.id === editingElement.id) {
-        // This is a generic way to update text content
-        const newContent = { ...el.content, text: newValue };
-        // For businessName and sectionTitle, the key is different
-        if (el.type === 'businessName') (newContent as any).name = newValue;
-        if (el.type === 'sectionTitle') (newContent as any).title = newValue;
-        return { ...el, content: newContent };
+        return { ...el, content: newValues };
       }
       return el;
     });
@@ -232,13 +266,29 @@ export default function EditorPage() {
             initialAltText={editingElement.altText}
             onSave={handleSaveLogo}
             onCancel={closeModal}
+            onDelete={handleDeleteElement}
           />
         )}
         {['title', 'subtitle', 'thankYou', 'businessName', 'sectionTitle'].includes(editingElement?.type) && (
           <TextEditForm
-            initialValue={(editingElement.content as any).text || (editingElement.content as any).name || (editingElement.content as any).title}
+            initialValues={{
+              text: (editingElement.content as any).text || (editingElement.content as any).name || (editingElement.content as any).title,
+              font: (editingElement.content as BaseContent).font,
+              color: (editingElement.content as BaseContent).color,
+            }}
             onSave={handleSaveText}
             onCancel={closeModal}
+            fontOptions={fontOptions}
+            label={editingElement.type === 'businessName' ? 'Nombre del Negocio' : 'Texto'}
+          />
+        )}
+        {editingElement?.type === 'product' && (
+          <ProductEditForm
+            initialValues={editingElement.content as ProductContent}
+            onSave={handleSaveProduct}
+            onCancel={closeModal}
+            onDelete={handleDeleteElement}
+            fontOptions={fontOptions}
           />
         )}
       </Modal>

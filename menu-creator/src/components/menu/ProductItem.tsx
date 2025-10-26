@@ -4,16 +4,23 @@ interface ProductItemProps {
   name: string;
   description: string;
   price: string;
+  font?: string;
+  color?: string;
+  onDoubleClick: () => void;
 }
 
-const ProductItem: React.FC<ProductItemProps> = ({ name, description, price }) => {
+const ProductItem: React.FC<ProductItemProps> = ({ name, description, price, font, color, onDoubleClick }) => {
   return (
-    <div className="my-4">
+    <div
+      onDoubleClick={onDoubleClick}
+      className={`my-4 p-2 rounded-md transition-colors cursor-pointer hover:bg-blue-100 ${font}`}
+      style={{ color: color }}
+    >
       <div className="flex justify-between items-baseline">
-        <h3 className="text-lg font-semibold text-gray-800">{name}</h3>
-        <p className="text-lg font-semibold text-gray-800">{price} €</p>
+        <h3 className="text-lg font-semibold">{name}</h3>
+        <p className="text-lg font-semibold">{price} €</p>
       </div>
-      <p className="text-sm text-gray-600 mt-1">
+      <p className="text-sm mt-1 opacity-80">
         {description}
       </p>
     </div>
