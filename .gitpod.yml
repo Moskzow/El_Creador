@@ -1,9 +1,12 @@
 # This configuration file tells Gitpod how to prepare and start the project.
 
 tasks:
-  - name: Install Dependencies & Start Dev Server
-    # Install dependencies in the sub-project first.
+  - name: Setup Environment & Start Server
+    # Set the correct Node.js version and install dependencies.
     init: |
+      nvm install 20
+      nvm use 20
+      nvm alias default 20
       cd menu-creator
       npm install
     # Run the dev script from the root workspace.
