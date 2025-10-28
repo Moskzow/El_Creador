@@ -33,9 +33,6 @@ interface LogoState { src: string; width: number; height: number; x: number; y: 
 declare const html2canvas: any;
 declare const jspdf: any;
 declare const Rnd: any;
-declare const DragDropContext: any;
-declare const Droppable: any;
-declare const Draggable: any;
 
 const fontOptions = [
   { value: 'font-sans', label: 'Inter (Sans-serif)' }, { value: 'font-roboto', label: 'Roboto (Sans-serif)' },
@@ -142,18 +139,6 @@ export default function EditorPage() {
     closeModal();
   };
 
-  const onDragEnd = (result: any) => {
-    const { destination, source } = result;
-    if (!destination) return;
-    if (destination.droppableId === source.droppableId && destination.index === source.index) return;
-
-    const newElements = Array.from(menuElements);
-    const [removed] = newElements.splice(source.index, 1);
-    newElements.splice(destination.index, 0, removed);
-
-    setMenuElements(newElements);
-  };
-
   const handleExportPDF = () => {
     const menuElement = menuPreviewRef.current;
     if (!menuElement) return;
@@ -179,12 +164,10 @@ export default function EditorPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-blue-100 font-sans p-4 sm:p-6 lg:p-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        {/* --- Sidebar --- */}
         <aside className="lg:col-span-1 p-6 glass-panel">
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-800 border-b pb-3 border-white border-opacity-30">Herramientas</h2>
 
-            {/* Logo Section */}
             <div className="space-y-3">
               <button onClick={handleLogoUploadClick} className="secondary-button">
                 {logo ? 'Cambiar Logo' : 'Cargar Logo'}
@@ -192,7 +175,6 @@ export default function EditorPage() {
               <input type="file" ref={fileInputRef} onChange={handleLogoFileChange} className="hidden" accept="image/*" />
             </div>
 
-            {/* Add Element Dropdown */}
             <div className="relative">
               <button onClick={() => setIsAddMenuOpen(!isAddMenuOpen)} className="premium-button flex justify-between items-center">
                 <span>Añadir Elemento</span>
@@ -217,14 +199,12 @@ export default function EditorPage() {
 
             <h2 className="text-2xl font-bold text-gray-800 border-b pt-4 pb-3 border-white border-opacity-30">Personalización Global</h2>
 
-            {/* Global Customization */}
             <div className="space-y-4">
               <div><label className="block text-sm font-medium text-gray-700 mb-1">Tipografía Global</label><select value={font} onChange={(e) => setFont(e.target.value)} className="w-full p-2 border border-gray-300 rounded-lg">{fontOptions.map(o => (<option key={o.value} value={o.value}>{o.label}</option>))}</select></div>
               <div><label className="block text-sm font-medium text-gray-700 mb-1">Color de Fondo del Menú</label><input type="color" value={backgroundColor} onChange={(e) => setBackgroundColor(e.target.value)} className="w-full h-10 p-1 border border-gray-300 rounded-lg"/></div>
               <div><label className="block text-sm font-medium text-gray-700 mb-1">Color de Texto Global</label><input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} className="w-full h-10 p-1 border border-gray-300 rounded-lg"/></div>
             </div>
 
-            {/* Export Button */}
             <div className="pt-6">
               <button onClick={handleExportPDF} className="w-full bg-green-600 text-white p-3 rounded-lg font-bold hover:bg-green-700 transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                 Exportar a PDF
@@ -233,32 +213,11 @@ export default function EditorPage() {
           </div>
         </aside>
 
-        {/* --- Menu Preview --- */}
         <main className="lg:col-span-2 p-8 bg-white rounded-2xl shadow-md">
           <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Vista Previa del Menú</h1>
           <div ref={menuPreviewRef} className={`relative w-full max-w-3xl mx-auto p-12 shadow-inner bg-opacity-50 min-h-[80vh] transition-colors ${font}`} style={{ backgroundColor: backgroundColor, color: textColor }}>
             {logo && <Logo {...logo} onUpdate={updateLogoState} onDoubleClick={() => openModal({ type: 'logo', ...logo })} />}
-
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="menu-elements">
-                {(provided: any) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef}>
-                    {menuElements.map((element, index) => (
-                      <Draggable key={element.id} draggableId={element.id} index={index}>
-                        {(providedDraggable: any) => (
-                          <div ref={providedDraggable.innerRef} {...providedDraggable.draggableProps} {...providedDraggable.dragHandleProps}>
-                            {renderElement(element)}
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-
-            {menuElements.length === 0 && !logo && (<p className="text-center opacity-50">Añade elementos para crear tu menú.</p>)}
+            {menuElements.length === 0 && !logo ? (<p className="text-center opacity-50">Añade elementos para crear tu menú.</p>) : (<div className="space-y-4">{menuElements.map(element => <div key={element.id}>{renderElement(element)}</div>)}</div>)}
           </div>
         </main>
       </div>

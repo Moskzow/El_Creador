@@ -28,7 +28,7 @@ const LogoEditForm: React.FC<LogoEditFormProps> = ({ initialAltText, onSave, onC
           className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
         />
       </div>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center pt-4">
         <div>
           <button onClick={onDelete} className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
             Eliminar
